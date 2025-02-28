@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BlueMeet</title>
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --primary-light: #c2d7ff;
+            --primary-dark: #0d47a1;
+            --white: #ffffff;
+            --gray: #f1f3f4;
+            --dark-gray: #5f6368;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--gray);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: var(--white);
+            padding: 15px 20px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            color: var(--primary);
+            font-size: 24px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .logo-icon {
+            background-color: var(--primary);
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        .join-form {
+            background-color: var(--white);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 50px;
+            text-align: center;
+        }
+        
+        h1 {
+            color: var(--primary-dark);
+            margin-bottom: 20px;
+        }
+        
+        input, button {
+            padding: 12px 16px;
+            margin: 8px 0;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            font-size: 16px;
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        
+        button:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .join-options {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+        
+        .divider {
+            margin: 20px 0;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .divider::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 45%;
+            height: 1px;
+            background-color: #ddd;
+        }
+        
+        .divider::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            right: 0;
+            width: 45%;
+            height: 1px;
+            background-color: #ddd;
+        }
+        
+        .meeting-container {
+            display: none;
+            flex-direction: column;
+            height: calc(100vh - 70px);
+        }
+        
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 16px;
+            flex: 1;
+            padding: 20px;
+            margin-bottom: 80px;
+        }
+        
+        .video-wrapper {
+            position: relative;
+            background-color: var(--dark-gray);
+            border-radius: 8px;
+            overflow: hidden;
+            aspect-ratio: 16/9;
+        }
+        
+        .video-wrapper.local::after {
+            content: "You";
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .video-wrapper video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .controls {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: var(--white);
+            display: flex;
+            justify-content: center;
+            padding: 16px;
+            gap: 16px;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .control-btn {
+            background-color: var(--gray);
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .control-btn:hover {
+            background-color: #e0e0e0;
+        }
+        
+        .control-btn.end-call {
+            background-color: #ea4335;
+            color: white;
+        }
+        
+        .control-btn.end-call:hover {
+            background-color: #d33426;
+        }
+        
+        .control-btn i {
+            font-size: 20px;
+            color: var(--dark-gray);
+        }
+        
+        .control-btn.end-call i {
+            color: white;
+        }
+        
+        @media (max-width: 768px) {
+            .video-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <div class="logo-icon">B</div>
+            BlueMeet
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="join-form" id="joinForm">
+            <h1>Start or join a meeting</h1>
+            <div class="join-options">
+                <input type="text" id="nameInput" placeholder="Enter your name">
+                <button id="newMeetingBtn">New Meeting</button>
+                <div class="divider">or</div>
+                <input type="text" id="meetingIdInput" placeholder="Enter meeting code">
+                <button id="joinMeetingBtn">Join Meeting</button>
+            </div>
+        </div>
+
+        <div class="meeting-container" id="meetingContainer">
+            <div class="video-grid" id="videoGrid">
+                <div class="video-wrapper local">
+                    <video id="localVideo" autoplay muted></video>
+                </div>
+            </div>
+            
+            <div class="controls">
+                <button class="control-btn" id="muteBtn">
+                    <i class="fas fa-microphone"></i>
+                </button>
+                <button class="control-btn" id="videoBtn">
+                    <i class="fas fa-video"></i>
+                </button>
+                <button class="control-btn end-call" id="endCallBtn">
+                    <i class="fas fa-phone-slash"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.4.7/peerjs.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const joinForm = document.getElementById('joinForm');
+            const meetingContainer = document.getElementById('meetingContainer');
+            const videoGrid = document.getElementById('videoGrid');
+            const localVideo = document.getElementById('localVideo');
+            const nameInput = document.getElementById('nameInput');
+            const meetingIdInput = document.getElementById('meetingIdInput');
+            const newMeetingBtn = document.getElementById('newMeetingBtn');
+            const joinMeetingBtn = document.getElementById('joinMeetingBtn');
+            const muteBtn = document.getElementById('muteBtn');
+            const videoBtn = document.getElementById('videoBtn');
+            const endCallBtn = document.getElementById('endCallBtn');
+
+            let localStream;
+            let myPeer;
+            let myPeerId;
+            let peers = {};
+            let isMuted = false;
+            let isVideoOff = false;
+
+            // Initialize camera and microphone
+            async function initMedia() {
+                try {
+                    localStream = await navigator.mediaDevices.getUserMedia({
+                        video: true,
+                        audio: true
+                    });
+                    localVideo.srcObject = localStream;
+                } catch (error) {
+                    console.error('Could not access media devices:', error);
+                    alert('Failed to access camera and microphone. Please check permissions.');
+                }
+            }
+
+            // Initialize a new meeting
+            async function initNewMeeting() {
+                if (!nameInput.value) {
+                    alert('Please enter your name');
+                    return;
+                }
+
+                await initMedia();
+                
+                myPeer = new Peer(); // Creates a random ID
+                
+                myPeer.on('open', (id) => {
+                    myPeerId = id;
+                    showMeetingView();
+                    copyToClipboard(myPeerId);
+                    alert(`Meeting started! Meeting ID: ${myPeerId} (copied to clipboard)`);
+                });
+
+                setupPeerEvents();
+            }
+
+            // Join an existing meeting
+            async function joinMeeting() {
+                if (!nameInput.value) {
+                    alert('Please enter your name');
+                    return;
+                }
+                
+                if (!meetingIdInput.value) {
+                    alert('Please enter a meeting ID');
+                    return;
+                }
+
+                await initMedia();
+                
+                myPeer = new Peer();
+                
+                myPeer.on('open', (id) => {
+                    myPeerId = id;
+                    showMeetingView();
+                    connectToPeer(meetingIdInput.value);
+                });
+
+                setupPeerEvents();
+            }
+
+            // Setup peer connection events
+            function setupPeerEvents() {
+                myPeer.on('call', (call) => {
+                    call.answer(localStream);
+                    
+                    const video = document.createElement('video');
+                    video.setAttribute('autoplay', '');
+                    
+                    call.on('stream', (remoteStream) => {
+                        addVideoStream(video, remoteStream);
+                    });
+                    
+                    call.on('close', () => {
+                        video.parentElement.remove();
+                    });
+
+                    peers[call.peer] = call;
+                });
+
+                myPeer.on('error', (error) => {
+                    console.error('Peer connection error:', error);
+                    alert(`Connection error: ${error.type}`);
+                });
+            }
+
+            // Connect to another peer
+            function connectToPeer(peerId) {
+                const call = myPeer.call(peerId, localStream);
+                
+                const video = document.createElement('video');
+                video.setAttribute('autoplay', '');
+                
+                call.on('stream', (remoteStream) => {
+                    addVideoStream(video, remoteStream);
+                });
+                
+                call.on('close', () => {
+                    video.parentElement.remove();
+                });
+
+                peers[peerId] = call;
+            }
+
+            // Add a video stream to the grid
+            function addVideoStream(video, stream) {
+                video.srcObject = stream;
+                
+                const wrapper = document.createElement('div');
+                wrapper.className = 'video-wrapper';
+                wrapper.appendChild(video);
+                
+                videoGrid.appendChild(wrapper);
+                
+                video.addEventListener('loadedmetadata', () => {
+                    video.play();
+                });
+            }
+
+            // Toggle mute
+            function toggleMute() {
+                isMuted = !isMuted;
+                localStream.getAudioTracks().forEach(track => {
+                    track.enabled = !isMuted;
+                });
+                
+                muteBtn.innerHTML = isMuted ? 
+                    '<i class="fas fa-microphone-slash"></i>' : 
+                    '<i class="fas fa-microphone"></i>';
+            }
+
+            // Toggle video
+            function toggleVideo() {
+                isVideoOff = !isVideoOff;
+                localStream.getVideoTracks().forEach(track => {
+                    track.enabled = !isVideoOff;
+                });
+                
+                videoBtn.innerHTML = isVideoOff ? 
+                    '<i class="fas fa-video-slash"></i>' : 
+                    '<i class="fas fa-video"></i>';
+            }
+
+            // End call and clean up
+            function endCall() {
+                if (localStream) {
+                    localStream.getTracks().forEach(track => track.stop());
+                }
+                
+                for (let peerId in peers) {
+                    peers[peerId].close();
+                }
+                
+                if (myPeer) {
+                    myPeer.destroy();
+                }
+                
+                showJoinForm();
+            }
+
+            // Display the meeting view
+            function showMeetingView() {
+                joinForm.style.display = 'none';
+                meetingContainer.style.display = 'flex';
+            }
+
+            // Display the join form
+            function showJoinForm() {
+                meetingContainer.style.display = 'none';
+                joinForm.style.display = 'block';
+            }
+
+            // Copy text to clipboard
+            function copyToClipboard(text) {
+                navigator.clipboard.writeText(text).catch(err => {
+                    console.error('Could not copy text: ', err);
+                });
+            }
+
+            // Event listeners
+            newMeetingBtn.addEventListener('click', initNewMeeting);
+            joinMeetingBtn.addEventListener('click', joinMeeting);
+            muteBtn.addEventListener('click', toggleMute);
+            videoBtn.addEventListener('click', toggleVideo);
+            endCallBtn.addEventListener('click', endCall);
+        });
+    </script>
+</body>
+</html>
